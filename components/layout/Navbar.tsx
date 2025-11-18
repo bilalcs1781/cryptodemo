@@ -11,16 +11,14 @@ export default function Navbar() {
     (state: RootState) => state.wallet
   );
   const { connectWallet, disconnect, formatAddress } = useMetaMask();
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleConnect = async () => {
     try {
       setLoading(true);
-      setError(null);
       await connectWallet();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to connect wallet");
+      // Error is already handled by toast in useMetaMask hook
     } finally {
       setLoading(false);
     }
@@ -74,11 +72,6 @@ export default function Navbar() {
           </Link>
         </div>
       </div>
-      {error && (
-        <div className="mt-2 p-2 bg-red-500/20 border border-red-500/50 rounded text-red-300 text-sm text-center">
-          {error}
-        </div>
-      )}
     </nav>
   );
 }

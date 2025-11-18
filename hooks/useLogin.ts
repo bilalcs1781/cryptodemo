@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import axios from "axios";
 
 export function useLogin() {
@@ -24,18 +25,19 @@ export function useLogin() {
 
       if (response.data.success) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
+        toast.success("Login successful! Redirecting...");
         router.push("/dashboard");
       }
     } catch (err) {
+      let errorMessage = "An error occurred. Please try again.";
       if (axios.isAxiosError(err)) {
-        setError(
+        errorMessage =
           err.response?.data?.message ||
-            err.message ||
-            "Invalid email or password"
-        );
-      } else {
-        setError("An error occurred. Please try again.");
+          err.message ||
+          "Invalid email or password";
       }
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

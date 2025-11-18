@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import axios from "axios";
 
 export function useSignup() {
@@ -19,13 +20,17 @@ export function useSignup() {
     setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      const errorMessage = "Passwords do not match";
+      setError(errorMessage);
+      toast.error(errorMessage);
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      const errorMessage = "Password must be at least 6 characters";
+      setError(errorMessage);
+      toast.error(errorMessage);
       setLoading(false);
       return;
     }
@@ -39,18 +44,19 @@ export function useSignup() {
 
       if (response.data.success) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
+        toast.success("Account created successfully! Redirecting...");
         router.push("/dashboard");
       }
     } catch (err) {
+      let errorMessage = "An error occurred. Please try again.";
       if (axios.isAxiosError(err)) {
-        setError(
+        errorMessage =
           err.response?.data?.message ||
-            err.message ||
-            "Failed to create account. Please try again."
-        );
-      } else {
-        setError("An error occurred. Please try again.");
+          err.message ||
+          "Failed to create account. Please try again.";
       }
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 import { AppDispatch } from "@/store/store";
 import {
   setWalletAddress,
@@ -31,20 +32,27 @@ export function useMetaMask() {
             method: "eth_chainId",
           });
           dispatch(setChainId(chainId));
+
+          toast.success("Wallet connected successfully!");
         }
       } catch (error: any) {
         console.error("Error connecting wallet:", error);
-        throw new Error(
-          error.message || "Failed to connect wallet. Please try again."
-        );
+        const errorMessage =
+          error.message || "Failed to connect wallet. Please try again.";
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
       }
     } else {
-      throw new Error("MetaMask is not installed. Please install MetaMask.");
+      const errorMessage =
+        "MetaMask is not installed. Please install MetaMask.";
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
   const disconnect = () => {
     dispatch(disconnectWallet());
+    toast.info("Wallet disconnected");
   };
 
   const formatAddress = (address: string | null) => {
@@ -57,13 +65,16 @@ export function useMetaMask() {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           dispatch(disconnectWallet());
+          toast.warning("Wallet account changed. Please reconnect.");
         } else {
           dispatch(setWalletAddress(accounts[0]));
+          toast.info("Wallet account changed");
         }
       };
 
       const handleChainChanged = (chainId: string) => {
         dispatch(setChainId(chainId));
+        toast.warning("Network changed. Please verify your connection.");
       };
 
       window.ethereum.on("accountsChanged", handleAccountsChanged);
