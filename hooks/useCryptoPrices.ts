@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export interface CryptoPrice {
   id: string;
@@ -29,17 +30,20 @@ export function useCryptoPrices() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(
-          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${CRYPTO_IDS.join(
-            ","
-          )}&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`
+        const { data } = await axios.get(
+          "https://api.coingecko.com/api/v3/coins/markets",
+          {
+            params: {
+              vs_currency: "usd",
+              ids: CRYPTO_IDS.join(","),
+              order: "market_cap_desc",
+              per_page: 10,
+              page: 1,
+              sparkline: false,
+              price_change_percentage: "24h",
+            },
+          }
         );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch cryptocurrency prices");
-        }
-
-        const data = await response.json();
 
         const formattedPrices: CryptoPrice[] = data.map((crypto: any) => ({
           id: crypto.id,
@@ -52,7 +56,15 @@ export function useCryptoPrices() {
 
         setCryptoPrices(formattedPrices);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        if (axios.isAxiosError(err)) {
+          setError(
+            err.response?.data?.error?.message ||
+              err.message ||
+              "Failed to fetch cryptocurrency prices"
+          );
+        } else {
+          setError(err instanceof Error ? err.message : "An error occurred");
+        }
         console.error("Error fetching crypto prices:", err);
       } finally {
         setLoading(false);

@@ -1,0 +1,96 @@
+"use client";
+
+import Link from "next/link";
+import { useLogin } from "@/hooks/useLogin";
+
+export default function LoginForm() {
+  const { formData, error, loading, handleSubmit, updateField } = useLogin();
+
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 shadow-2xl">
+      <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+      <p className="text-gray-300 mb-8">Sign in to your account</p>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-300 mb-2"
+          >
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            value={formData.email}
+            onChange={(e) => updateField("email", e.target.value)}
+            className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-300 mb-2"
+          >
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            value={formData.password}
+            onChange={(e) => updateField("password", e.target.value)}
+            className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              className="w-4 h-4 rounded bg-white/5 border-white/20 text-purple-600 focus:ring-purple-500"
+            />
+            <span className="ml-2 text-sm text-gray-300">Remember me</span>
+          </label>
+          <Link
+            href="#"
+            className="text-sm text-purple-400 hover:text-purple-300"
+          >
+            Forgot password?
+          </Link>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Signing in..." : "Sign In"}
+        </button>
+      </form>
+
+      <div className="mt-6 text-center">
+        <p className="text-gray-300">
+          Don't have an account?{" "}
+          <Link
+            href="/signup"
+            className="text-purple-400 hover:text-purple-300 font-semibold"
+          >
+            Sign up
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
