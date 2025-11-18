@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
+import Navbar from "@/components/layout/Navbar";
 
 export default function HomePage() {
   const { cryptoPrices, loading, error } = useCryptoPrices();
@@ -21,29 +22,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <nav className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="text-2xl font-bold text-white">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-              CryptoHub
-            </span>
-          </div>
-          <div className="flex gap-4">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-white hover:text-purple-400 transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg"
-            >
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container mx-auto px-6 py-20">
         <div className="text-center max-w-4xl mx-auto">
