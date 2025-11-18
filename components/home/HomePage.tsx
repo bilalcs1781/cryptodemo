@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/common/Navbar";
+import Footer from "@/components/common/Footer";
 
 export default function HomePage() {
   const { cryptoPrices, loading, error } = useCryptoPrices();
@@ -149,11 +150,7 @@ export default function HomePage() {
         </div>
       </main>
 
-      <footer className="container mx-auto px-6 py-8 mt-20 border-t border-white/10">
-        <div className="text-center text-gray-400">
-          <p>&copy; 2024 CryptoHub. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

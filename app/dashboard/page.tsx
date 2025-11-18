@@ -1,11 +1,12 @@
 "use client";
 
 import { useDashboard } from "@/hooks/useDashboard";
-import DashboardNav from "@/components/dashboard/DashboardNav";
+import Navbar from "@/components/common/Navbar";
 import WalletCard from "@/components/dashboard/WalletCard";
 import CryptoPricesCard from "@/components/dashboard/CryptoPricesCard";
 import StripeCard from "@/components/dashboard/StripeCard";
-import LoadingScreen from "@/components/dashboard/LoadingScreen";
+import LoadingScreen from "@/components/common/LoadingScreen";
+import Footer from "@/components/common/Footer";
 
 export default function DashboardPage() {
   const {
@@ -24,7 +25,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <DashboardNav />
+      <Navbar />
 
       <main className="container mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold text-white mb-8">Dashboard</h1>
@@ -46,6 +47,8 @@ export default function DashboardPage() {
           />
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
