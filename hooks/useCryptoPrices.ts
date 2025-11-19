@@ -20,6 +20,37 @@ const CRYPTO_IDS = [
   "polkadot",
 ];
 
+// Hardcoded crypto names mapping
+const getCryptoName = (id: string, symbol: string): string => {
+  const normalizedId = id?.toLowerCase() || "";
+  const normalizedSymbol = symbol?.toLowerCase() || "";
+
+  // Check by ID first
+  if (normalizedId.includes("bitcoin") || normalizedSymbol === "btc") {
+    return "Bitcoin";
+  }
+  if (normalizedId.includes("ethereum") || normalizedSymbol === "eth") {
+    return "Ethereum";
+  }
+  if (normalizedId.includes("binance") || normalizedSymbol === "bnb") {
+    return "Binance Coin";
+  }
+  if (normalizedId.includes("cardano") || normalizedSymbol === "ada") {
+    return "Cardano";
+  }
+  if (normalizedId.includes("solana") || normalizedSymbol === "sol") {
+    return "Solana";
+  }
+  if (normalizedId.includes("polkadot") || normalizedSymbol === "dot") {
+    return "Polkadot";
+  }
+
+  // Fallback: capitalize first letter of symbol
+  return symbol
+    ? symbol.charAt(0).toUpperCase() + symbol.slice(1).toLowerCase()
+    : "Unknown";
+};
+
 export function useCryptoPrices() {
   const [cryptoPrices, setCryptoPrices] = useState<CryptoPrice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,12 +78,15 @@ export function useCryptoPrices() {
           : data.data || data.prices || [];
 
         // Map backend response to our CryptoPrice interface
-        const formattedPrices: CryptoPrice[] = pricesData.map(
-          (crypto: any) => ({
-            id:
-              crypto.id || crypto.coinId || crypto.symbol?.toLowerCase() || "",
-            name: crypto.name || crypto.coinName || "",
-            symbol: (crypto.symbol || crypto.coinId || "").toUpperCase(),
+        const formattedPrices: CryptoPrice[] = pricesData.map((crypto: any) => {
+          const id =
+            crypto.id || crypto.coinId || crypto.symbol?.toLowerCase() || "";
+          const symbol = (crypto.symbol || crypto.coinId || "").toUpperCase();
+
+          return {
+            id,
+            name: crypto.name || crypto.coinName || getCryptoName(id, symbol),
+            symbol,
             price: crypto.price || crypto.currentPrice || crypto.usd || 0,
             change24h:
               crypto.change24h ||
@@ -60,8 +94,8 @@ export function useCryptoPrices() {
               crypto.change_24h ||
               0,
             image: crypto.image || crypto.logo || "",
-          })
-        );
+          };
+        });
 
         setCryptoPrices(formattedPrices);
       } catch (err) {
