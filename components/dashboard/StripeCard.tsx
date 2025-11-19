@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Transaction } from "@/hooks/useDashboard";
 import PaymentIntentModal from "./PaymentIntentModal";
+import NoData from "@/components/common/NoData";
 
 interface StripeCardProps {
   transactions: Transaction[];
@@ -73,9 +74,7 @@ export default function StripeCard({
           </h3>
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {transactions.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
-                No transactions found
-              </div>
+              <NoData message="No transactions found" />
             ) : (
               transactions.map((transaction) => (
                 <div

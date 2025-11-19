@@ -1,6 +1,7 @@
 "use client";
 
 import { User } from "@/hooks/useAdminPanel";
+import NoData from "@/components/common/NoData";
 
 interface AdminTableProps {
   users: User[];
@@ -50,8 +51,8 @@ export default function AdminTable({
           <tbody className="divide-y divide-white/10">
             {users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
-                  No users found
+                <td colSpan={5} className="px-6 py-8">
+                  <NoData message="No users found" />
                 </td>
               </tr>
             ) : (
