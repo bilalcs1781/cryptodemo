@@ -28,7 +28,6 @@ export function useAdminPanel() {
       setError(null);
       const response = await httpClient.get("/users");
 
-      // Handle different response structures
       const usersData = Array.isArray(response.data)
         ? response.data
         : response.data.data || response.data.users || [];
