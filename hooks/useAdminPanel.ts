@@ -68,7 +68,7 @@ export function useAdminPanel() {
 
     try {
       setLoading(true);
-      const response = await httpClient.put(`/users/${editingUser.id}`, {
+      const response = await httpClient.patch(`/users/${editingUser.id}`, {
         name: editingUser.name,
         email: editingUser.email,
         role: editingUser.role,
