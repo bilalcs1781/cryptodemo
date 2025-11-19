@@ -5,13 +5,11 @@ import { Transaction } from "@/hooks/useDashboard";
 import PaymentIntentModal from "./PaymentIntentModal";
 
 interface StripeCardProps {
-  balance: number;
   transactions: Transaction[];
   onRefresh?: () => void;
 }
 
 export default function StripeCard({
-  balance,
   transactions,
   onRefresh,
 }: StripeCardProps) {
@@ -59,7 +57,7 @@ export default function StripeCard({
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">
-            Stripe Payment Balance
+            Payment Transactions
           </h2>
           <button
             onClick={() => setShowPaymentModal(true)}
@@ -67,19 +65,6 @@ export default function StripeCard({
           >
             Create Payment
           </button>
-        </div>
-
-        <div className="mb-6">
-          <div className="px-6 py-4 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl border border-white/10">
-            <div className="text-sm text-gray-400 mb-1">Total Balance</div>
-            <div className="text-4xl font-bold text-white">
-              $
-              {balance.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </div>
-          </div>
         </div>
 
         <div>

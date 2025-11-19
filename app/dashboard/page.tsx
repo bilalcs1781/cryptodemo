@@ -38,7 +38,6 @@ export default function DashboardPage() {
             chainId={wallet.chainId}
           />
           <StripeCard 
-            balance={stripeBalance} 
             transactions={transactions}
             onRefresh={refreshTransactions}
           />

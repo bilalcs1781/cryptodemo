@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   PaymentElement,
   useStripe,
@@ -9,7 +9,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { STRIPE_PUBLISHABLE_KEY } from "@/lib/stripe-config";
-import { usePayments, PaymentIntent } from "@/hooks/usePayments";
+import { usePayments } from "@/hooks/usePayments";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 
@@ -28,233 +28,156 @@ export default function PaymentIntentModal({
 }: PaymentIntentModalProps) {
   const { createPaymentIntent } = usePayments();
   const { user } = useAuth();
-  const [step, setStep] = useState<"form" | "payment">("form");
   const [clientSecret, setClientSecret] = useState<string>("");
-  const [formData, setFormData] = useState<PaymentIntent>({
-    amount: 0,
-    currency: "usd",
-    description: "",
-    metadata: {
-      orderId: "",
-      productName: "",
-      customerEmail: user?.email || "",
-    },
-  });
+  const [amount, setAmount] = useState<number>(0);
+  const [description, setDescription] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
-  const handleCreateIntent = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (isOpen) {
+      setAmount(0);
+      setDescription("");
+      setClientSecret("");
+    }
+  }, [isOpen]);
 
-    if (formData.amount <= 0) {
+  const handleCreateIntent = async () => {
+    if (amount <= 0 || !description.trim()) {
+      toast.error("Please enter amount and description");
       return;
     }
 
     try {
+      setLoading(true);
       const response = await createPaymentIntent({
-        ...formData,
-        amount: Math.round(formData.amount * 100), // Convert to cents
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        description: description.trim(),
         metadata: {
-          orderId: formData.metadata?.orderId || "",
-          productName: formData.metadata?.productName || formData.description,
-          customerEmail: formData.metadata?.customerEmail || user?.email || "",
+          customerEmail: user?.email || "",
         },
       });
 
       setClientSecret(response.clientSecret);
-      setStep("payment");
     } catch (error) {
       // Error handled by toast in hook
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleBack = () => {
-    setStep("form");
-    setClientSecret("");
   };
 
   if (!isOpen) return null;
 
+  if (!clientSecret) {
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-6">
+        <div className="bg-slate-800 rounded-2xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
+          <h2 className="text-2xl font-bold text-white mb-6">Create Payment</h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Amount (USD)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={amount}
+                onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="0.00"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Description
+              </label>
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Payment description"
+                required
+              />
+            </div>
+
+            <div className="flex gap-4 mt-6">
+              <button
+                onClick={handleCreateIntent}
+                disabled={loading || amount <= 0 || !description.trim()}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Creating..." : "Continue to Payment"}
+              </button>
+              <button
+                onClick={onClose}
+                disabled={loading}
+                className="flex-1 px-4 py-3 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-6">
       <div className="bg-slate-800 rounded-2xl p-8 max-w-md w-full border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
-        {step === "form" ? (
-          <>
-            <h2 className="text-2xl font-bold text-white mb-6">
-              Create Payment Intent
-            </h2>
-
-            <form onSubmit={handleCreateIntent} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Amount (USD)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      amount: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="0.00"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Premium subscription"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.metadata?.productName || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      metadata: {
-                        ...formData.metadata,
-                        productName: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Premium Subscription"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Order ID
-                </label>
-                <input
-                  type="text"
-                  value={formData.metadata?.orderId || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      metadata: {
-                        ...formData.metadata,
-                        orderId: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="12345"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Customer Email
-                </label>
-                <input
-                  type="email"
-                  value={formData.metadata?.customerEmail || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      metadata: {
-                        ...formData.metadata,
-                        customerEmail: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="customer@example.com"
-                />
-              </div>
-
-              <div className="flex gap-4 mt-6">
-                <button
-                  type="submit"
-                  disabled={formData.amount <= 0}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Continue to Payment
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 px-4 py-3 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-all"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </>
-        ) : clientSecret ? (
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret,
-              appearance: {
-                theme: "night",
-                variables: {
-                  colorPrimary: "#8b5cf6",
-                  colorBackground: "#1e293b",
-                  colorText: "#ffffff",
-                  colorDanger: "#ef4444",
-                  fontFamily: "system-ui, sans-serif",
-                  spacingUnit: "4px",
-                  borderRadius: "8px",
-                },
+        <Elements
+          stripe={stripePromise}
+          options={{
+            clientSecret,
+            appearance: {
+              theme: "night",
+              variables: {
+                colorPrimary: "#8b5cf6",
+                colorBackground: "#1e293b",
+                colorText: "#ffffff",
+                colorDanger: "#ef4444",
+                fontFamily: "system-ui, sans-serif",
+                spacingUnit: "4px",
+                borderRadius: "8px",
               },
+            },
+          }}
+        >
+          <PaymentFormContent
+            amount={amount}
+            description={description}
+            onSuccess={() => {
+              setClientSecret("");
+              setAmount(0);
+              setDescription("");
+              onSuccess?.();
+              onClose();
             }}
-          >
-            <PaymentFormContent
-              formData={formData}
-              onBack={handleBack}
-              onSuccess={() => {
-                setFormData({
-                  amount: 0,
-                  currency: "usd",
-                  description: "",
-                  metadata: {
-                    orderId: "",
-                    productName: "",
-                    customerEmail: user?.email || "",
-                  },
-                });
-                setStep("form");
-                setClientSecret("");
-                onSuccess?.();
-                onClose();
-              }}
-            />
-          </Elements>
-        ) : null}
+            onCancel={() => {
+              setClientSecret("");
+            }}
+          />
+        </Elements>
       </div>
     </div>
   );
 }
 
 function PaymentFormContent({
-  formData,
-  onBack,
+  amount,
+  description,
   onSuccess,
+  onCancel,
 }: {
-  formData: PaymentIntent;
-  onBack: () => void;
+  amount: number;
+  description: string;
   onSuccess: () => void;
+  onCancel: () => void;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -303,12 +226,12 @@ function PaymentFormContent({
         <div className="bg-white/5 rounded-lg p-4 border border-white/10">
           <div className="text-sm text-gray-400 mb-1">Amount</div>
           <div className="text-xl font-bold text-white">
-            ${formData.amount.toFixed(2)}
+            ${amount.toFixed(2)}
           </div>
-          {formData.description && (
+          {description && (
             <>
               <div className="text-sm text-gray-400 mb-1 mt-2">Description</div>
-              <div className="text-sm text-white">{formData.description}</div>
+              <div className="text-sm text-white">{description}</div>
             </>
           )}
         </div>
@@ -323,11 +246,11 @@ function PaymentFormContent({
           </button>
           <button
             type="button"
-            onClick={onBack}
+            onClick={onCancel}
             disabled={processing}
             className="flex-1 px-4 py-3 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Back
+            Cancel
           </button>
         </div>
       </form>
