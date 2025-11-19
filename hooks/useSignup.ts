@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import axios from "axios";
+import httpClient from "@/lib/http-client";
+import { getErrorMessage, parseUserData } from "@/lib/api-utils";
+import { AppDispatch } from "@/store/store";
+import { setUser } from "@/store/reducers/userSlice";
 
 export function useSignup() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
+    age: "",
+    address: "",
+    role: "user" as "user" | "admin",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,26 +43,54 @@ export function useSignup() {
       return;
     }
 
+    // Validate age
+    const age = parseInt(formData.age);
+    if (!formData.age || isNaN(age) || age < 1 || age > 150) {
+      const errorMessage = "Please enter a valid age";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      setLoading(false);
+      return;
+    }
+
+    // Validate address
+    if (!formData.address.trim()) {
+      const errorMessage = "Please enter your address";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post("/api/auth/signup", {
+      const response = await httpClient.post("/auth/signup", {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        age: age,
+        address: formData.address.trim(),
+        role: formData.role,
       });
 
-      if (response.data.success) {
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+      const responseData = response.data;
+
+      // Parse user data and token from response
+      const { user: userData, token } = parseUserData(responseData);
+
+      if (responseData.success || token || userData) {
+        // Store user data with token in Redux
+        const userWithToken = {
+          ...userData,
+          token: token || userData.token,
+        };
+        dispatch(setUser(userWithToken));
         toast.success("Account created successfully! Redirecting...");
         router.push("/dashboard");
+      } else {
+        throw new Error("Invalid response from server");
       }
     } catch (err) {
-      let errorMessage = "An error occurred. Please try again.";
-      if (axios.isAxiosError(err)) {
-        errorMessage =
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to create account. Please try again.";
-      }
+      const errorMessage = getErrorMessage(err);
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -63,7 +99,14 @@ export function useSignup() {
   };
 
   const updateField = (
-    field: "name" | "email" | "password" | "confirmPassword",
+    field:
+      | "name"
+      | "email"
+      | "password"
+      | "confirmPassword"
+      | "age"
+      | "address"
+      | "role",
     value: string
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -77,4 +120,3 @@ export function useSignup() {
     updateField,
   };
 }
-

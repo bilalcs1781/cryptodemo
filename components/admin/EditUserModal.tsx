@@ -7,6 +7,7 @@ interface EditUserModalProps {
   onSave: () => void;
   onCancel: () => void;
   onUpdate: (updates: Partial<User>) => void;
+  loading?: boolean;
 }
 
 export default function EditUserModal({
@@ -14,6 +15,7 @@ export default function EditUserModal({
   onSave,
   onCancel,
   onUpdate,
+  loading = false,
 }: EditUserModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-6">
@@ -65,13 +67,15 @@ export default function EditUserModal({
         <div className="flex gap-4 mt-6">
           <button
             onClick={onSave}
-            className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
+            disabled={loading}
+            className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Changes
+            {loading ? "Saving..." : "Save Changes"}
           </button>
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-3 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-all"
+            disabled={loading}
+            className="flex-1 px-4 py-3 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>

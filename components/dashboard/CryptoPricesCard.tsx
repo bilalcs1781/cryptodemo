@@ -1,6 +1,7 @@
 "use client";
 
 import { CryptoPrice } from "@/hooks/useCryptoPrices";
+import CryptoIcon from "@/components/common/CryptoIcon";
 
 interface CryptoPricesCardProps {
   prices: CryptoPrice[];
@@ -51,15 +52,11 @@ export default function CryptoPricesCard({
               key={crypto.id}
               className="bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <img
-                  src={crypto.image}
-                  alt={crypto.name}
-                  className="w-10 h-10 rounded-full"
-                />
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold">{crypto.name}</h3>
-                  <p className="text-gray-400 text-sm">{crypto.symbol}</p>
+              <div className="flex items-center gap-3 mb-4">
+                <CryptoIcon symbol={crypto.symbol} id={crypto.id} className="w-12 h-12" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-white font-bold text-lg mb-1 truncate">{crypto.name}</h3>
+                  <p className="text-gray-400 text-sm font-medium">{crypto.symbol}</p>
                 </div>
               </div>
 

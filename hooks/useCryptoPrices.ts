@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import httpClient from "@/lib/http-client";
+import { AxiosError } from "axios";
 
 export interface CryptoPrice {
   id: string;
@@ -30,35 +31,44 @@ export function useCryptoPrices() {
         setLoading(true);
         setError(null);
 
-        const { data } = await axios.get(
-          "https://api.coingecko.com/api/v3/coins/markets",
-          {
-            params: {
-              vs_currency: "usd",
-              ids: CRYPTO_IDS.join(","),
-              order: "market_cap_desc",
-              per_page: 10,
-              page: 1,
-              sparkline: false,
-              price_change_percentage: "24h",
-            },
-          }
-        );
+        // Fetch prices for all coins - backend endpoint accepts comma-separated coinIds
+        const coinIdsParam = CRYPTO_IDS.join(",");
+        const { data } = await httpClient.get("/crypto/prices", {
+          params: {
+            coinIds: coinIdsParam,
+            currency: "usd",
+          },
+        });
 
-        const formattedPrices: CryptoPrice[] = data.map((crypto: any) => ({
-          id: crypto.id,
-          name: crypto.name,
-          symbol: crypto.symbol.toUpperCase(),
-          price: crypto.current_price,
-          change24h: crypto.price_change_percentage_24h || 0,
-          image: crypto.image,
-        }));
+        // Handle different response structures from backend
+        // The response might be an array or an object with a data property
+        const pricesData = Array.isArray(data)
+          ? data
+          : data.data || data.prices || [];
+
+        // Map backend response to our CryptoPrice interface
+        const formattedPrices: CryptoPrice[] = pricesData.map(
+          (crypto: any) => ({
+            id:
+              crypto.id || crypto.coinId || crypto.symbol?.toLowerCase() || "",
+            name: crypto.name || crypto.coinName || "",
+            symbol: (crypto.symbol || crypto.coinId || "").toUpperCase(),
+            price: crypto.price || crypto.currentPrice || crypto.usd || 0,
+            change24h:
+              crypto.change24h ||
+              crypto.priceChange24h ||
+              crypto.change_24h ||
+              0,
+            image: crypto.image || crypto.logo || "",
+          })
+        );
 
         setCryptoPrices(formattedPrices);
       } catch (err) {
-        if (axios.isAxiosError(err)) {
+        if (err instanceof AxiosError) {
           setError(
             err.response?.data?.error?.message ||
+              err.response?.data?.message ||
               err.message ||
               "Failed to fetch cryptocurrency prices"
           );

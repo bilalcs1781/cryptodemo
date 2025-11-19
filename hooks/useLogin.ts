@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import axios from "axios";
+import httpClient from "@/lib/http-client";
+import { getErrorMessage, parseUserData } from "@/lib/api-utils";
+import { AppDispatch } from "@/store/store";
+import { setUser } from "@/store/reducers/userSlice";
 
 export function useLogin() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,24 +23,30 @@ export function useLogin() {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/auth/login", {
+      const response = await httpClient.post("/auth/login", {
         email: formData.email,
         password: formData.password,
       });
 
-      if (response.data.success) {
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+      const responseData = response.data;
+
+      // Parse user data and token from response
+      const { user: userData, token } = parseUserData(responseData);
+
+      if (responseData.success || token || userData) {
+        // Store user data with token in Redux
+        const userWithToken = {
+          ...userData,
+          token: token || userData.token,
+        };
+        dispatch(setUser(userWithToken));
         toast.success("Login successful! Redirecting...");
         router.push("/dashboard");
+      } else {
+        throw new Error("Invalid response from server");
       }
     } catch (err) {
-      let errorMessage = "An error occurred. Please try again.";
-      if (axios.isAxiosError(err)) {
-        errorMessage =
-          err.response?.data?.message ||
-          err.message ||
-          "Invalid email or password";
-      }
+      const errorMessage = getErrorMessage(err);
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

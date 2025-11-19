@@ -7,6 +7,7 @@ interface AdminTableProps {
   onEdit: (user: User) => void;
   onDelete: (id: string) => void;
   deleteConfirm: string | null;
+  loading?: boolean;
 }
 
 export default function AdminTable({
@@ -14,6 +15,7 @@ export default function AdminTable({
   onEdit,
   onDelete,
   deleteConfirm,
+  loading = false,
 }: AdminTableProps) {
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
@@ -72,19 +74,23 @@ export default function AdminTable({
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-sm">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {user.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString()
+                      : "N/A"}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => onEdit(user)}
-                        className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors text-sm"
+                        disabled={loading}
+                        className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => onDelete(user.id)}
-                        className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+                        disabled={loading}
+                        className={`px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                           deleteConfirm === user.id
                             ? "bg-red-500 text-white hover:bg-red-600"
                             : "bg-red-500/20 text-red-300 hover:bg-red-500/30"

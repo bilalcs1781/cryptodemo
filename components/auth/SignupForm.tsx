@@ -92,6 +92,63 @@ export default function SignupForm() {
           />
         </div>
 
+        <div>
+          <label
+            htmlFor="age"
+            className="block text-sm font-medium text-gray-300 mb-2"
+          >
+            Age
+          </label>
+          <input
+            type="number"
+            id="age"
+            value={formData.age}
+            onChange={(e) => updateField("age", e.target.value)}
+            className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            placeholder="30"
+            required
+            min={1}
+            max={150}
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="address"
+            className="block text-sm font-medium text-gray-300 mb-2"
+          >
+            Address
+          </label>
+          <input
+            type="text"
+            id="address"
+            value={formData.address}
+            onChange={(e) => updateField("address", e.target.value)}
+            className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            placeholder="123 Main St, City, Country"
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="role"
+            className="block text-sm font-medium text-gray-300 mb-2"
+          >
+            Role
+          </label>
+          <select
+            id="role"
+            value={formData.role}
+            onChange={(e) => updateField("role", e.target.value as "user" | "admin")}
+            className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all [&>option]:bg-slate-900 [&>option]:text-white"
+            required
+          >
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
         <div className="flex items-center">
           <input
             type="checkbox"

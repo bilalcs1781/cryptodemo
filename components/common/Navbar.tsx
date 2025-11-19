@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useMetaMask } from "@/hooks/useMetaMask";
+import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 
 export default function Navbar() {
@@ -11,6 +12,7 @@ export default function Navbar() {
     (state: RootState) => state.wallet
   );
   const { connectWallet, disconnect, formatAddress } = useMetaMask();
+  const { isAuthenticated, user, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -64,24 +66,50 @@ export default function Navbar() {
               {loading ? "Connecting..." : "Connect MetaMask"}
             </button>
           )}
-          <Link
-            href="/admin"
-            className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-sm sm:text-base"
-          >
-            Admin Panel
-          </Link>
-          <Link
-            href="/login"
-            className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-sm sm:text-base"
-          >
-            Login
-          </Link>
-          <Link
-            href="/signup"
-            className="px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg text-sm sm:text-base"
-          >
-            Sign Up
-          </Link>
+          {isAuthenticated ? (
+            <>
+              {user && user.role === "admin" && (
+                <Link
+                  href="/admin"
+                  className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-sm sm:text-base"
+                >
+                  Admin Panel
+                </Link>
+              )}
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-sm sm:text-base"
+              >
+                Dashboard
+              </Link>
+              {user && (
+                <div className="px-3 py-2 bg-purple-500/20 text-purple-300 rounded-lg text-sm font-semibold">
+                  {user.name || user.email}
+                </div>
+              )}
+              <button
+                onClick={logout}
+                className="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 cursor-pointer transition-colors text-sm sm:text-base"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-sm sm:text-base"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg text-sm sm:text-base"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -135,27 +163,57 @@ export default function Navbar() {
                 {loading ? "Connecting..." : "Connect MetaMask"}
               </button>
             )}
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-center"
-            >
-              Admin Panel
-            </Link>
-            <Link
-              href="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-center"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg text-center"
-            >
-              Sign Up
-            </Link>
+            {isAuthenticated ? (
+              <>
+                {user && user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-center"
+                  >
+                    Admin Panel
+                  </Link>
+                )}
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-center"
+                >
+                  Dashboard
+                </Link>
+                {user && (
+                  <div className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-lg text-sm font-semibold text-center">
+                    {user.name || user.email}
+                  </div>
+                )}
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 cursor-pointer transition-colors text-sm"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-2 text-white hover:text-purple-400 transition-colors text-center"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg text-center"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -17,6 +17,7 @@ export default function DashboardPage() {
     stripeBalance,
     transactions,
     loading,
+    refreshTransactions,
   } = useDashboard();
 
   if (loading) {
@@ -36,7 +37,11 @@ export default function DashboardPage() {
             isConnected={wallet.isConnected}
             chainId={wallet.chainId}
           />
-          <StripeCard balance={stripeBalance} transactions={transactions} />
+          <StripeCard 
+            balance={stripeBalance} 
+            transactions={transactions}
+            onRefresh={refreshTransactions}
+          />
         </div>
 
         <div className="mt-6">

@@ -5,6 +5,7 @@ import Navbar from "@/components/common/Navbar";
 import AdminTable from "@/components/admin/AdminTable";
 import EditUserModal from "@/components/admin/EditUserModal";
 import Footer from "@/components/common/Footer";
+import LoadingScreen from "@/components/common/LoadingScreen";
 
 export default function AdminPanel() {
   const {
@@ -12,12 +13,18 @@ export default function AdminPanel() {
     editingUser,
     showEditModal,
     deleteConfirm,
+    loading,
+    error,
     handleEdit,
     handleSaveEdit,
     handleCancelEdit,
     handleDelete,
     updateEditingUser,
   } = useAdminPanel();
+
+  if (loading && users.length === 0) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -29,11 +36,18 @@ export default function AdminPanel() {
           <p className="text-gray-300">Manage users and system settings</p>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300">
+            Error: {error}
+          </div>
+        )}
+
         <AdminTable
           users={users}
           onEdit={handleEdit}
           onDelete={handleDelete}
           deleteConfirm={deleteConfirm}
+          loading={loading}
         />
       </main>
 
@@ -43,6 +57,7 @@ export default function AdminPanel() {
           onSave={handleSaveEdit}
           onCancel={handleCancelEdit}
           onUpdate={updateEditingUser}
+          loading={loading}
         />
       )}
 

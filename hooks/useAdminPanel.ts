@@ -1,87 +1,108 @@
 import { useState, useEffect } from "react";
+import httpClient from "@/lib/http-client";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/api-utils";
 
 export interface User {
   id: string;
   name: string;
   email: string;
   role: "user" | "admin";
-  createdAt: string;
+  createdAt?: string;
+  age?: number;
+  address?: string;
 }
 
-const DUMMY_USERS: User[] = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@cryptohub.com",
-    role: "admin",
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "2",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    role: "user",
-    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "3",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    role: "user",
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "4",
-    name: "Bob Johnson",
-    email: "bob.johnson@example.com",
-    role: "user",
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "5",
-    name: "Alice Williams",
-    email: "alice.williams@example.com",
-    role: "user",
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "6",
-    name: "Charlie Brown",
-    email: "charlie.brown@example.com",
-    role: "user",
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
-
 export function useAdminPanel() {
-  const [users, setUsers] = useState<User[]>(DUMMY_USERS);
+  const [users, setUsers] = useState<User[]>([]);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch all users
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await httpClient.get("/users");
+
+      // Handle different response structures
+      const usersData = Array.isArray(response.data)
+        ? response.data
+        : response.data.data || response.data.users || [];
+
+      const formattedUsers: User[] = usersData.map((user: any) => ({
+        id: user.id || user._id || "",
+        name: user.name || "",
+        email: user.email || "",
+        role: user.role || "user",
+        createdAt:
+          user.createdAt || user.created_at || new Date().toISOString(),
+        age: user.age,
+        address: user.address,
+      }));
+
+      setUsers(formattedUsers);
+    } catch (err) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
+      toast.error(`Failed to fetch users: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleEdit = (user: User) => {
     setEditingUser({ ...user });
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingUser) return;
 
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === editingUser.id
-          ? {
-              ...user,
-              name: editingUser.name,
-              email: editingUser.email,
-              role: editingUser.role,
-            }
-          : user
-      )
-    );
+    try {
+      setLoading(true);
+      const response = await httpClient.put(`/users/${editingUser.id}`, {
+        name: editingUser.name,
+        email: editingUser.email,
+        role: editingUser.role,
+        ...(editingUser.age && { age: editingUser.age }),
+        ...(editingUser.address && { address: editingUser.address }),
+      });
 
-    setShowEditModal(false);
-    setEditingUser(null);
+      // Update local state
+      const updatedUser =
+        response.data.data || response.data.user || response.data;
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === editingUser.id
+            ? {
+                ...user,
+                name: updatedUser.name || editingUser.name,
+                email: updatedUser.email || editingUser.email,
+                role: updatedUser.role || editingUser.role,
+                age: updatedUser.age || editingUser.age,
+                address: updatedUser.address || editingUser.address,
+              }
+            : user
+        )
+      );
+
+      setShowEditModal(false);
+      setEditingUser(null);
+      toast.success("User updated successfully!");
+    } catch (err) {
+      const errorMessage = getErrorMessage(err);
+      toast.error(`Failed to update user: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -89,10 +110,21 @@ export function useAdminPanel() {
     setEditingUser(null);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (deleteConfirm === id) {
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-      setDeleteConfirm(null);
+      try {
+        setLoading(true);
+        await httpClient.delete(`/users/${id}`);
+
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+        setDeleteConfirm(null);
+        toast.success("User deleted successfully!");
+      } catch (err) {
+        const errorMessage = getErrorMessage(err);
+        toast.error(`Failed to delete user: ${errorMessage}`);
+      } finally {
+        setLoading(false);
+      }
     } else {
       setDeleteConfirm(id);
     }
@@ -109,10 +141,13 @@ export function useAdminPanel() {
     editingUser,
     showEditModal,
     deleteConfirm,
+    loading,
+    error,
     handleEdit,
     handleSaveEdit,
     handleCancelEdit,
     handleDelete,
     updateEditingUser,
+    refetchUsers: fetchUsers,
   };
 }
