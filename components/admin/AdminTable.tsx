@@ -84,14 +84,14 @@ export default function AdminTable({
                       <button
                         onClick={() => onEdit(user)}
                         disabled={loading}
-                        className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => onDelete(user.id)}
                         disabled={loading}
-                        className={`px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                        className={`px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                           deleteConfirm === user.id
                             ? "bg-red-500 text-white hover:bg-red-600"
                             : "bg-red-500/20 text-red-300 hover:bg-red-500/30"

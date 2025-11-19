@@ -42,7 +42,7 @@ export default function WalletCard({
               <span className="text-white font-mono text-sm">{address}</span>
               <button
                 onClick={() => navigator.clipboard.writeText(address)}
-                className="text-purple-400 hover:text-purple-300 transition-colors"
+                className="text-purple-400 hover:text-purple-300 transition-colors cursor-pointer"
                 title="Copy address"
               >
                 📋
@@ -72,7 +72,7 @@ export default function WalletCard({
           <button
             onClick={handleConnect}
             disabled={loading}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50"
+            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Connecting..." : "Connect MetaMask"}
           </button>

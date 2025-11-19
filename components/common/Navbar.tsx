@@ -114,7 +114,7 @@ export default function Navbar() {
 
         <button
           onClick={toggleMobileMenu}
-          className="md:hidden flex flex-col justify-center items-center w-10 h-10 space-y-1.5 p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="md:hidden flex flex-col justify-center items-center w-10 h-10 space-y-1.5 p-2 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
           aria-label="Toggle menu"
         >
           <span
