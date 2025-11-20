@@ -37,7 +37,7 @@ export function useMetaMask() {
           dispatch(setChainId(chainId));
 
           // POST wallet address to backend if user is authenticated
-          if (user?.id) {
+          if (user?._id) {
             try {
               await httpClient.post("/wallet/connect", {
                 address: address,
@@ -86,7 +86,7 @@ export function useMetaMask() {
           dispatch(setWalletAddress(address));
 
           // POST new wallet address to backend if user is authenticated
-          if (user?.id) {
+          if (user?._id) {
             try {
               await httpClient.post("/wallet/connect", {
                 address: address,
