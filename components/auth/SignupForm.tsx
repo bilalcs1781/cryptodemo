@@ -130,25 +130,6 @@ export default function SignupForm() {
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="role"
-            className="block text-sm font-medium text-gray-300 mb-2"
-          >
-            Role
-          </label>
-          <select
-            id="role"
-            value={formData.role}
-            onChange={(e) => updateField("role", e.target.value as "user" | "admin")}
-            className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all [&>option]:bg-slate-900 [&>option]:text-white"
-            required
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-
         <div className="flex items-center">
           <input
             type="checkbox"

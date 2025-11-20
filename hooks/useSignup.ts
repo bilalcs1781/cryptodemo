@@ -13,7 +13,6 @@ export function useSignup() {
     confirmPassword: "",
     age: "",
     address: "",
-    role: "user" as "user" | "admin",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,7 +64,7 @@ export function useSignup() {
         password: formData.password,
         age: age,
         address: formData.address.trim(),
-        role: formData.role,
+        role: "user", // Always set role to "user" - admin role cannot be assigned during signup
       });
 
       const responseData = response.data;
@@ -94,8 +93,7 @@ export function useSignup() {
       | "password"
       | "confirmPassword"
       | "age"
-      | "address"
-      | "role",
+      | "address",
     value: string
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

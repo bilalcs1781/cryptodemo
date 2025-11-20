@@ -1,6 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/common/Navbar";
 import WalletCard from "@/components/dashboard/WalletCard";
 import CryptoPricesCard from "@/components/dashboard/CryptoPricesCard";
@@ -9,6 +12,8 @@ import LoadingScreen from "@/components/common/LoadingScreen";
 import Footer from "@/components/common/Footer";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const {
     wallet,
     cryptoPrices,
@@ -20,7 +25,16 @@ export default function DashboardPage() {
     refreshTransactions,
   } = useDashboard();
 
-  if (loading) {
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+  }, [isAuthenticated, router]);
+
+  // Show loading while checking authentication or loading dashboard data
+  if (!isAuthenticated || loading) {
     return <LoadingScreen />;
   }
 
@@ -37,7 +51,7 @@ export default function DashboardPage() {
             isConnected={wallet.isConnected}
             chainId={wallet.chainId}
           />
-          <StripeCard 
+          <StripeCard
             transactions={transactions}
             onRefresh={refreshTransactions}
           />
