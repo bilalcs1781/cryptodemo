@@ -64,7 +64,6 @@ export function useSignup() {
         password: formData.password,
         age: age,
         address: formData.address.trim(),
-        role: "user", // Always set role to "user" - admin role cannot be assigned during signup
       });
 
       const responseData = response.data;
