@@ -3,14 +3,17 @@ import httpClient from "@/lib/http-client";
 import { getErrorMessage } from "@/lib/api-utils";
 
 export interface Wallet {
-  id: string;
+  _id: string;
   address: string;
-  chainId?: string;
-  userId: string;
-  userEmail?: string;
-  userName?: string;
+  userId: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  __v?: number;
 }
 
 export function useWallets() {

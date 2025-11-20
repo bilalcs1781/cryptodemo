@@ -41,7 +41,7 @@ export default function WalletsTable({
                 User Email
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
-                Chain ID
+                User Name
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
                 Connected At
@@ -61,7 +61,7 @@ export default function WalletsTable({
             ) : (
               wallets.map((wallet) => (
                 <tr
-                  key={wallet.id}
+                  key={wallet._id}
                   className="hover:bg-white/5 transition-colors"
                 >
                   <td className="px-6 py-4">
@@ -79,10 +79,10 @@ export default function WalletsTable({
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-300">
-                    {wallet.userEmail || "N/A"}
+                    {wallet.userId?.email || "N/A"}
                   </td>
                   <td className="px-6 py-4 text-gray-300">
-                    {wallet.chainId || "N/A"}
+                    {wallet.userId?.name || "N/A"}
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-sm">
                     {wallet.createdAt
