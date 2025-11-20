@@ -1,6 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAdminPanel } from "@/hooks/useAdminPanel";
+import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/common/Navbar";
 import AdminTable from "@/components/admin/AdminTable";
 import EditUserModal from "@/components/admin/EditUserModal";
@@ -8,6 +11,8 @@ import Footer from "@/components/common/Footer";
 import LoadingScreen from "@/components/common/LoadingScreen";
 
 export default function AdminPanel() {
+  const router = useRouter();
+  const { isAuthenticated, user } = useAuth();
   const {
     users,
     editingUser,
@@ -22,7 +27,25 @@ export default function AdminPanel() {
     updateEditingUser,
   } = useAdminPanel();
 
-  if (loading && users.length === 0) {
+  useEffect(() => {
+    // Check if user is authenticated and has admin role
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+
+    if (user && user.role !== "admin") {
+      router.push("/dashboard");
+      return;
+    }
+  }, [isAuthenticated, user, router]);
+
+  // Show loading while checking authentication
+  if (!isAuthenticated || (user && user.role !== "admin")) {
+    return <LoadingScreen />;
+  }
+
+  if (loading) {
     return <LoadingScreen />;
   }
 
