@@ -3,6 +3,8 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
+import { store } from "@/store/store";
+import { logout } from "@/store/reducers/userSlice";
 
 const BASE_URL = "https://cryptobackend-8xgf.vercel.app";
 
@@ -18,18 +20,12 @@ const httpClient: AxiosInstance = axios.create({
 // Request interceptor
 httpClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Get token from localStorage if available
+    // Get token from Redux store
     if (typeof window !== "undefined") {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          if (user?.token) {
-            config.headers.Authorization = `Bearer ${user.token}`;
-          }
-        } catch (error) {
-          console.error("Error parsing user from localStorage:", error);
-        }
+      const state = store.getState();
+      const token = state.user.token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
     }
     return config;
@@ -51,9 +47,9 @@ httpClient.interceptors.response.use(
       const status = error.response.status;
 
       if (status === 401) {
-        // Unauthorized - clear user data and redirect to login
+        // Unauthorized - logout user from Redux
         if (typeof window !== "undefined") {
-          localStorage.removeItem("user");
+          store.dispatch(logout());
           // Optionally redirect to login page
           // window.location.href = "/login";
         }
