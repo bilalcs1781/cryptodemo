@@ -17,7 +17,8 @@ export function useAdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -109,24 +110,35 @@ export function useAdminPanel() {
     setEditingUser(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (deleteConfirm === id) {
-      try {
-        setLoading(true);
-        await httpClient.delete(`/users/${id}`);
+  const handleDelete = (user: User) => {
+    setDeletingUser(user);
+    setShowDeleteModal(true);
+  };
 
-        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-        setDeleteConfirm(null);
-        toast.success("User deleted successfully!");
-      } catch (err) {
-        const errorMessage = getErrorMessage(err);
-        toast.error(`Failed to delete user: ${errorMessage}`);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setDeleteConfirm(id);
+  const handleConfirmDelete = async () => {
+    if (!deletingUser) return;
+
+    try {
+      setLoading(true);
+      await httpClient.delete(`/users/${deletingUser.id}`);
+
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== deletingUser.id)
+      );
+      setShowDeleteModal(false);
+      setDeletingUser(null);
+      toast.success("User deleted successfully!");
+    } catch (err) {
+      const errorMessage = getErrorMessage(err);
+      toast.error(`Failed to delete user: ${errorMessage}`);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeletingUser(null);
   };
 
   const updateEditingUser = (updates: Partial<User>) => {
@@ -139,13 +151,16 @@ export function useAdminPanel() {
     users,
     editingUser,
     showEditModal,
-    deleteConfirm,
+    deletingUser,
+    showDeleteModal,
     loading,
     error,
     handleEdit,
     handleSaveEdit,
     handleCancelEdit,
     handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
     updateEditingUser,
     refetchUsers: fetchUsers,
   };

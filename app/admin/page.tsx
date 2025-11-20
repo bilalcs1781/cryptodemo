@@ -9,6 +9,7 @@ import Navbar from "@/components/common/Navbar";
 import AdminTable from "@/components/admin/AdminTable";
 import WalletsTable from "@/components/admin/WalletsTable";
 import EditUserModal from "@/components/admin/EditUserModal";
+import DeleteUserModal from "@/components/admin/DeleteUserModal";
 import Footer from "@/components/common/Footer";
 import LoadingScreen from "@/components/common/LoadingScreen";
 
@@ -19,13 +20,16 @@ export default function AdminPanel() {
     users,
     editingUser,
     showEditModal,
-    deleteConfirm,
+    deletingUser,
+    showDeleteModal,
     loading,
     error,
     handleEdit,
     handleSaveEdit,
     handleCancelEdit,
     handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
     updateEditingUser,
   } = useAdminPanel();
 
@@ -80,7 +84,6 @@ export default function AdminPanel() {
             users={users}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            deleteConfirm={deleteConfirm}
             loading={loading}
           />
         </div>
@@ -99,6 +102,15 @@ export default function AdminPanel() {
           onSave={handleSaveEdit}
           onCancel={handleCancelEdit}
           onUpdate={updateEditingUser}
+          loading={loading}
+        />
+      )}
+
+      {showDeleteModal && deletingUser && (
+        <DeleteUserModal
+          user={deletingUser}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
           loading={loading}
         />
       )}

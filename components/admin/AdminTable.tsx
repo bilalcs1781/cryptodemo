@@ -6,8 +6,7 @@ import NoData from "@/components/common/NoData";
 interface AdminTableProps {
   users: User[];
   onEdit: (user: User) => void;
-  onDelete: (id: string) => void;
-  deleteConfirm: string | null;
+  onDelete: (user: User) => void;
   loading?: boolean;
 }
 
@@ -15,7 +14,6 @@ export default function AdminTable({
   users,
   onEdit,
   onDelete,
-  deleteConfirm,
   loading = false,
 }: AdminTableProps) {
   return (
@@ -85,15 +83,11 @@ export default function AdminTable({
                         Edit
                       </button>
                       <button
-                        onClick={() => onDelete(user.id)}
+                        onClick={() => onDelete(user)}
                         disabled={loading}
-                        className={`px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                          deleteConfirm === user.id
-                            ? "bg-red-500 text-white hover:bg-red-600"
-                            : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
-                        }`}
+                        className="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {deleteConfirm === user.id ? "Confirm" : "Delete"}
+                        Delete
                       </button>
                     </div>
                   </td>
