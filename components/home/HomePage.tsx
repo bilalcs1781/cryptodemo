@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
+import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import CryptoIcon from "@/components/common/CryptoIcon";
 
 export default function HomePage() {
   const { cryptoPrices, loading, error } = useCryptoPrices();
+  const { isAuthenticated } = useAuth();
 
   const formatPrice = (price: number) => {
     if (price < 0.01) {
@@ -39,20 +41,33 @@ export default function HomePage() {
             your wallet, and stay ahead of the market.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
-            <Link
-              href="/signup"
-              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105"
-            >
-              Get Started
-            </Link>
-            <Link
-              href="/login"
-              className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-lg text-lg font-semibold hover:bg-white/20 transition-all border border-white/20"
-            >
-              Sign In
-            </Link>
-          </div>
+          {!isAuthenticated && (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+              <Link
+                href="/signup"
+                className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105"
+              >
+                Get Started
+              </Link>
+              <Link
+                href="/login"
+                className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-lg text-lg font-semibold hover:bg-white/20 transition-all border border-white/20"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
+
+          {isAuthenticated && (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+              <Link
+                href="/dashboard"
+                className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
+          )}
 
           <div className="grid md:grid-cols-3 gap-8 mt-20">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all">
