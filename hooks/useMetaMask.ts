@@ -19,6 +19,7 @@ declare global {
 export function useMetaMask() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
+  const address = useSelector((state: RootState) => state.wallet.address);
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== "undefined") {
@@ -77,6 +78,41 @@ export function useMetaMask() {
 
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") {
+      // Verify persisted wallet is still connected in MetaMask
+      const verifyWallet = async () => {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_accounts",
+          });
+
+          if (accounts.length > 0) {
+            // Get current wallet state from Redux (persisted by redux-persist)
+            const currentAddress = address;
+
+            // If we have a persisted address, verify it matches MetaMask
+            if (currentAddress) {
+              if (accounts[0].toLowerCase() !== currentAddress.toLowerCase()) {
+                // Address doesn't match, disconnect
+                dispatch(disconnectWallet());
+              } else {
+                // Update chainId if needed
+                const chainId = await window.ethereum.request({
+                  method: "eth_chainId",
+                });
+                dispatch(setChainId(chainId));
+              }
+            }
+          } else if (address) {
+            // MetaMask is not connected but we have persisted address, disconnect
+            dispatch(disconnectWallet());
+          }
+        } catch (error) {
+          console.error("Error verifying wallet:", error);
+        }
+      };
+
+      verifyWallet();
+
       const handleAccountsChanged = async (accounts: string[]) => {
         if (accounts.length === 0) {
           dispatch(disconnectWallet());
@@ -114,7 +150,7 @@ export function useMetaMask() {
         window.ethereum.removeListener("chainChanged", handleChainChanged);
       };
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, address]);
 
   return {
     connectWallet,

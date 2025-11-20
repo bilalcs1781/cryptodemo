@@ -18,31 +18,11 @@ interface UserState {
   isAuthenticated: boolean;
 }
 
-// Load initial state from localStorage if available
-const getInitialState = (): UserState => {
-  if (typeof window !== "undefined") {
-    try {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const userData = JSON.parse(userStr);
-        return {
-          user: userData,
-          token: userData?.token || null,
-          isAuthenticated: !!userData?.token,
-        };
-      }
-    } catch (error) {
-      console.error("Error loading user from localStorage:", error);
-    }
-  }
-  return {
-    user: null,
-    token: null,
-    isAuthenticated: false,
-  };
+const initialState: UserState = {
+  user: null,
+  token: null,
+  isAuthenticated: false,
 };
-
-const initialState: UserState = getInitialState();
 
 const userSlice = createSlice({
   name: "user",
@@ -52,33 +32,20 @@ const userSlice = createSlice({
       state.user = action.payload;
       state.token = action.payload.token || null;
       state.isAuthenticated = !!action.payload.token;
-
-      // Save to localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(action.payload));
-      }
     },
     setToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;
       state.isAuthenticated = true;
 
-      // Update token in user object and localStorage
+      // Update token in user object
       if (state.user) {
         state.user.token = action.payload;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(state.user));
-        }
       }
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-
-      // Remove from localStorage
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("user");
-      }
     },
   },
 });
