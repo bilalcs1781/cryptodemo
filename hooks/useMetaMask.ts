@@ -41,7 +41,6 @@ export function useMetaMask() {
             try {
               await httpClient.post("/wallet/connect", {
                 address: address,
-                chainId: chainId,
               });
             } catch (error) {
               // Log error but don't block wallet connection
@@ -89,12 +88,8 @@ export function useMetaMask() {
           // POST new wallet address to backend if user is authenticated
           if (user?.id) {
             try {
-              const chainId = await window.ethereum.request({
-                method: "eth_chainId",
-              });
               await httpClient.post("/wallet/connect", {
                 address: address,
-                chainId: chainId,
               });
             } catch (error) {
               console.error("Error saving wallet to backend:", error);

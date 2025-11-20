@@ -110,6 +110,3 @@ export default function WalletsTable({
     </div>
   );
 }
-
-
-

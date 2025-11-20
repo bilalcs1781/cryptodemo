@@ -45,26 +45,30 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-4">
-          {isConnected && address ? (
-            <div className="flex items-center gap-3">
-              <div className="px-3 py-2 bg-green-500/20 text-green-300 rounded-lg text-sm font-semibold">
-                {formatAddress(address)}
-              </div>
-              <button
-                onClick={handleDisconnect}
-                className="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 cursor-pointer transition-colors text-sm"
-              >
-                Disconnect
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={handleConnect}
-              disabled={loading}
-              className="px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-            >
-              {loading ? "Connecting..." : "Connect MetaMask"}
-            </button>
+          {isAuthenticated && (
+            <>
+              {isConnected && address ? (
+                <div className="flex items-center gap-3">
+                  <div className="px-3 py-2 bg-green-500/20 text-green-300 rounded-lg text-sm font-semibold">
+                    {formatAddress(address)}
+                  </div>
+                  <button
+                    onClick={handleDisconnect}
+                    className="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 cursor-pointer transition-colors text-sm"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleConnect}
+                  disabled={loading}
+                  className="px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                >
+                  {loading ? "Connecting..." : "Connect MetaMask"}
+                </button>
+              )}
+            </>
           )}
           {isAuthenticated ? (
             <>
@@ -142,26 +146,30 @@ export default function Navbar() {
       >
         <div className="pb-4 border-t border-white/10 pt-4">
           <div className="flex flex-col gap-4">
-            {isConnected && address ? (
+            {isAuthenticated && (
               <>
-                <div className="px-4 py-2 bg-green-500/20 text-green-300 rounded-lg text-sm font-semibold text-center">
-                  {formatAddress(address)}
-                </div>
-                <button
-                  onClick={handleDisconnect}
-                  className="w-full px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 cursor-pointer transition-colors text-sm"
-                >
-                  Disconnect
-                </button>
+                {isConnected && address ? (
+                  <>
+                    <div className="px-4 py-2 bg-green-500/20 text-green-300 rounded-lg text-sm font-semibold text-center">
+                      {formatAddress(address)}
+                    </div>
+                    <button
+                      onClick={handleDisconnect}
+                      className="w-full px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 cursor-pointer transition-colors text-sm"
+                    >
+                      Disconnect
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleConnect}
+                    disabled={loading}
+                    className="w-full px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  >
+                    {loading ? "Connecting..." : "Connect MetaMask"}
+                  </button>
+                )}
               </>
-            ) : (
-              <button
-                onClick={handleConnect}
-                disabled={loading}
-                className="w-full px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-              >
-                {loading ? "Connecting..." : "Connect MetaMask"}
-              </button>
             )}
             {isAuthenticated ? (
               <>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useMetaMask } from "@/hooks/useMetaMask";
+import { useAuth } from "@/hooks/useAuth";
 
 interface WalletCardProps {
   address: string | null;
@@ -15,6 +16,7 @@ export default function WalletCard({
   chainId,
 }: WalletCardProps) {
   const { formatAddress, connectWallet } = useMetaMask();
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleConnect = async () => {
@@ -69,13 +71,17 @@ export default function WalletCard({
       ) : (
         <div className="text-center py-8">
           <p className="text-gray-300 mb-4">No wallet connected</p>
-          <button
-            onClick={handleConnect}
-            disabled={loading}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Connecting..." : "Connect MetaMask"}
-          </button>
+          {isAuthenticated ? (
+            <button
+              onClick={handleConnect}
+              disabled={loading}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Connecting..." : "Connect MetaMask"}
+            </button>
+          ) : (
+            <p className="text-gray-400 text-sm">Please login to connect your wallet</p>
+          )}
         </div>
       )}
     </div>
