@@ -95,8 +95,6 @@ export function useMetaMask() {
               console.error("Error saving wallet to backend:", error);
             }
           }
-
-          toast.info("Wallet account changed");
         }
       };
 
