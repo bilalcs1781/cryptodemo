@@ -1,12 +1,14 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { AppDispatch } from "@/store/store";
+import { AppDispatch, RootState } from "@/store/store";
 import {
   setWalletAddress,
   setChainId,
   disconnectWallet,
 } from "@/store/reducers/walletSlice";
+import httpClient from "@/lib/http-client";
+import { getErrorMessage } from "@/lib/api-utils";
 
 declare global {
   interface Window {
@@ -16,6 +18,7 @@ declare global {
 
 export function useMetaMask() {
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user.user);
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== "undefined") {
@@ -32,6 +35,19 @@ export function useMetaMask() {
             method: "eth_chainId",
           });
           dispatch(setChainId(chainId));
+
+          // POST wallet address to backend if user is authenticated
+          if (user?.id) {
+            try {
+              await httpClient.post("/wallet/connect", {
+                address: address,
+                chainId: chainId,
+              });
+            } catch (error) {
+              // Log error but don't block wallet connection
+              console.error("Error saving wallet to backend:", error);
+            }
+          }
 
           toast.success("Wallet connected successfully!");
         }
@@ -62,12 +78,29 @@ export function useMetaMask() {
 
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") {
-      const handleAccountsChanged = (accounts: string[]) => {
+      const handleAccountsChanged = async (accounts: string[]) => {
         if (accounts.length === 0) {
           dispatch(disconnectWallet());
           toast.warning("Wallet account changed. Please reconnect.");
         } else {
-          dispatch(setWalletAddress(accounts[0]));
+          const address = accounts[0];
+          dispatch(setWalletAddress(address));
+
+          // POST new wallet address to backend if user is authenticated
+          if (user?.id) {
+            try {
+              const chainId = await window.ethereum.request({
+                method: "eth_chainId",
+              });
+              await httpClient.post("/wallet/connect", {
+                address: address,
+                chainId: chainId,
+              });
+            } catch (error) {
+              console.error("Error saving wallet to backend:", error);
+            }
+          }
+
           toast.info("Wallet account changed");
         }
       };
@@ -88,7 +121,7 @@ export function useMetaMask() {
         window.ethereum.removeListener("chainChanged", handleChainChanged);
       };
     }
-  }, [dispatch]);
+  }, [dispatch, user]);
 
   return {
     connectWallet,

@@ -3,9 +3,11 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminPanel } from "@/hooks/useAdminPanel";
+import { useWallets } from "@/hooks/useWallets";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/common/Navbar";
 import AdminTable from "@/components/admin/AdminTable";
+import WalletsTable from "@/components/admin/WalletsTable";
 import EditUserModal from "@/components/admin/EditUserModal";
 import Footer from "@/components/common/Footer";
 import LoadingScreen from "@/components/common/LoadingScreen";
@@ -26,6 +28,8 @@ export default function AdminPanel() {
     handleDelete,
     updateEditingUser,
   } = useAdminPanel();
+
+  const { wallets, loading: walletsLoading, error: walletsError, refetch: refetchWallets } = useWallets();
 
   useEffect(() => {
     // Check if user is authenticated and has admin role
@@ -65,13 +69,28 @@ export default function AdminPanel() {
           </div>
         )}
 
-        <AdminTable
-          users={users}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          deleteConfirm={deleteConfirm}
-          loading={loading}
-        />
+        {walletsError && (
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300">
+            Wallets Error: {walletsError}
+          </div>
+        )}
+
+        <div className="mb-8">
+          <AdminTable
+            users={users}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            deleteConfirm={deleteConfirm}
+            loading={loading}
+          />
+        </div>
+
+        <div>
+          <WalletsTable
+            wallets={wallets}
+            loading={walletsLoading}
+          />
+        </div>
       </main>
 
       {showEditModal && editingUser && (

@@ -32,9 +32,6 @@ export default function AdminTable({
           <thead className="bg-white/5">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
-                Name
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
                 Email
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">
@@ -51,7 +48,7 @@ export default function AdminTable({
           <tbody className="divide-y divide-white/10">
             {users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8">
+                <td colSpan={4} className="px-6 py-8">
                   <NoData message="No users found" />
                 </td>
               </tr>
@@ -61,7 +58,6 @@ export default function AdminTable({
                   key={user.id}
                   className="hover:bg-white/5 transition-colors"
                 >
-                  <td className="px-6 py-4 text-white">{user.name}</td>
                   <td className="px-6 py-4 text-gray-300">{user.email}</td>
                   <td className="px-6 py-4">
                     <span
