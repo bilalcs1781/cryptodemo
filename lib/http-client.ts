@@ -6,7 +6,9 @@ import axios, {
 import { store } from "@/store/store";
 import { logout } from "@/store/reducers/userSlice";
 
-const BASE_URL = "https://cryptobackend-8xgf.vercel.app";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://cryptobackend-8xgf.vercel.app";
 
 // Create axios instance with base configuration
 const httpClient: AxiosInstance = axios.create({
